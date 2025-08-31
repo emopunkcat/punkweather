@@ -13,5 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 5. Copy the rest of your application's code into the container
 COPY . .
 
-# 6. The command to run your application
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:3000", "--preload", "app:app"]
+# 6. Copy and make the entrypoint script executable
+COPY entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+
+# 7. Set the entrypoint script as the command to run when the container starts
+ENTRYPOINT ["./entrypoint.sh"]
