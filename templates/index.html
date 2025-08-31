@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f4f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem; box-sizing: border-box; }
+        .dashboard { display: flex; flex-direction: column; gap: 2rem; width: 100%; max-width: 800px; }
+        .card { background-color: white; padding: 2rem; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); text-align: center; }
+        h1, h2, p { margin: 0.5rem 0; }
+        h2 { font-size: 3rem; }
+        .nav-list { list-style: none; padding: 0; margin-top: 1rem; }
+        .nav-list a { display: block; background-color: #f9f9f9; margin: 0.5rem 0; padding: 1rem; border-radius: 8px; text-decoration: none; color: #333; transition: background-color 0.2s; }
+        .nav-list a:hover { background-color: #e9e9e9; }
+        .nav-list h3 { margin-top: 1.5rem; color: #555; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="card">
+            {% if weather %}
+                <h1>Current Weather in {{ weather.city }}</h1>
+                <p>Last updated: {{ weather.timestamp }}</p>
+                <h2>{{ weather.temperature }}</h2>
+                <p>Feels like: {{ weather.feels_like }}</p>
+            {% else %}
+                <h1>Weather data is currently unavailable.</h1>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2>Temperature Trends (Last 90 Days)</h2>
+            <canvas id="tempChart" data-chart-data='{{ chart_data | tojson }}'></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Quick Access</h2>
+            <ul class="nav-list">
+                <h3>Pages</h3>
+                <li><a href="/history">View History Table</a></li>
+                <h3>API Endpoints</h3>
+                <li><a href="/api/simple" target="_blank">Simple API</a></li>
+                <li><a href="/api/weather" target="_blank">Latest Weather API</a></li>
+                <li><a href="/api/db/all" target="_blank">Full History API</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 2. Select the canvas element
+        const ctx = document.getElementById('tempChart');
+
+        // 3. Read the data string from the attribute and parse it into a JavaScript object
+        const chartData = JSON.parse(ctx.dataset.chartData);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Avg Temp (°F)',
+                    data: chartData.avg_temps,
+                    borderColor: 'rgb(255, 99, 132)',
+                    borderWidth: 3,
+                    tension: 0.1
+                }, {
+                    label: 'Max Temp (°F)',
+                    data: chartData.max_temps,
+                    borderColor: 'rgba(54, 162, 235, 0.5)',
+                    borderDash: [5, 5],
+                    borderWidth: 1,
+                    tension: 0.1
+                }, {
+                    label: 'Min Temp (°F)',
+                    data: chartData.min_temps,
+                    borderColor: 'rgba(75, 192, 192, 0.5)',
+                    borderDash: [5, 5],
+                    borderWidth: 1,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: { 
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 15
+                        }
+                    }
+                },
+                responsive: true,
+            }
+        });
+    </script>
+</body>
+</html>
