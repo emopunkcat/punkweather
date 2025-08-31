@@ -30,8 +30,5 @@ COPY . .
 # Add the virtual environment to the system's PATH
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Make the entrypoint script executable (it was copied in the step above)
-RUN chmod +x ./entrypoint.sh
-
-# Set the entrypoint to run your application
-ENTRYPOINT ["./entrypoint.sh"]
+# The command to run your application when the container starts
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:3000", "--preload", "app:app"]
